@@ -2,7 +2,7 @@
 
 import pytest
 from app.services.ai_service import AIService
-from unittest.mock import Mock, patch, AsyncMock
+from unittest.mock import patch
 
 
 def test_get_provider_from_gpt_model():
