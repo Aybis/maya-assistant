@@ -3,7 +3,14 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .config import settings
-from .api import conversations_router, messages_router, models_router
+from .api import (
+    conversations_router,
+    messages_router,
+    models_router,
+    memory_router,
+    summaries_router,
+    memory_utils_router
+)
 
 # Create FastAPI app
 app = FastAPI(
@@ -25,6 +32,9 @@ app.add_middleware(
 app.include_router(conversations_router)
 app.include_router(messages_router)
 app.include_router(models_router)
+app.include_router(memory_router)
+app.include_router(summaries_router)
+app.include_router(memory_utils_router)
 
 
 @app.get("/")
