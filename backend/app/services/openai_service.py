@@ -54,22 +54,71 @@ class OpenAIService:
     def get_available_models() -> List[dict]:
         """Return list of available OpenAI models"""
         return [
+            # GPT-5 Models
             {
-                "id": "gpt-4-turbo-preview",
+                "id": "gpt-5-nano",
+                "name": "GPT-5 Nano",
+                "provider": "openai",
+                "brand": "GPT",
+                "category": "GPT-5",
+                "description": "Ultra-fast, lightweight GPT-5"
+            },
+            {
+                "id": "gpt-5-mini",
+                "name": "GPT-5 Mini",
+                "provider": "openai",
+                "brand": "GPT",
+                "category": "GPT-5",
+                "description": "Compact GPT-5 model"
+            },
+            {
+                "id": "gpt-5",
+                "name": "GPT-5",
+                "provider": "openai",
+                "brand": "GPT",
+                "category": "GPT-5",
+                "description": "Next-generation GPT model"
+            },
+            # GPT-4 Models
+            {
+                "id": "gpt-4-turbo",
                 "name": "GPT-4 Turbo",
                 "provider": "openai",
+                "brand": "GPT",
+                "category": "GPT-4",
                 "description": "Most capable GPT-4 model"
             },
             {
                 "id": "gpt-4",
                 "name": "GPT-4",
                 "provider": "openai",
-                "description": "High intelligence model"
+                "brand": "GPT",
+                "category": "GPT-4",
+                "description": "Advanced reasoning model"
             },
+            {
+                "id": "gpt-4o",
+                "name": "GPT-4o",
+                "provider": "openai",
+                "brand": "GPT",
+                "category": "GPT-4",
+                "description": "Optimized GPT-4 variant"
+            },
+            {
+                "id": "gpt-4o-mini",
+                "name": "GPT-4o Mini",
+                "provider": "openai",
+                "brand": "GPT",
+                "category": "GPT-4",
+                "description": "Efficient GPT-4o variant"
+            },
+            # GPT-3.5 Models
             {
                 "id": "gpt-3.5-turbo",
                 "name": "GPT-3.5 Turbo",
                 "provider": "openai",
-                "description": "Fast and efficient"
+                "brand": "GPT",
+                "category": "GPT-3.5",
+                "description": "Fast and cost-effective"
             }
         ]

@@ -16,7 +16,7 @@ const ChatArea: React.FC = () => {
   const {
     currentConversation,
     messages,
-    models,
+    groupedModels,
     setMessages,
     addMessage,
     updateConversation,
@@ -145,7 +145,7 @@ const ChatArea: React.FC = () => {
       {/* Header with model selector */}
       <div className="border-b p-4">
         <ModelSelector
-          models={models}
+          groupedModels={groupedModels}
           selectedModel={selectedModel}
           onSelectModel={setSelectedModel}
           disabled={isStreaming}

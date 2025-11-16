@@ -68,22 +68,49 @@ class ClaudeService:
     def get_available_models() -> List[dict]:
         """Return list of available Claude models"""
         return [
+            # Claude 3.5 Models
+            {
+                "id": "claude-3-5-sonnet-20241022",
+                "name": "Sonnet 3.5",
+                "provider": "anthropic",
+                "brand": "Claude",
+                "category": "Claude 3.5",
+                "description": "Latest Sonnet with enhanced capabilities"
+            },
+            # Claude 3 Models - Opus
             {
                 "id": "claude-3-opus-20240229",
-                "name": "Claude 3 Opus",
+                "name": "Opus",
                 "provider": "anthropic",
+                "brand": "Claude",
+                "category": "Claude 3",
                 "description": "Most capable Claude model"
             },
+            # Claude 3 Models - Sonnet
             {
                 "id": "claude-3-sonnet-20240229",
-                "name": "Claude 3 Sonnet",
+                "name": "Sonnet",
                 "provider": "anthropic",
+                "brand": "Claude",
+                "category": "Claude 3",
                 "description": "Balanced performance and speed"
             },
+            # Claude 3 Models - Haiku
             {
                 "id": "claude-3-haiku-20240307",
-                "name": "Claude 3 Haiku",
+                "name": "Haiku",
                 "provider": "anthropic",
+                "brand": "Claude",
+                "category": "Claude 3",
                 "description": "Fastest Claude model"
+            },
+            # Claude 2 Models
+            {
+                "id": "claude-2.1",
+                "name": "Claude 2.1",
+                "provider": "anthropic",
+                "brand": "Claude",
+                "category": "Claude 2",
+                "description": "Previous generation Claude"
             }
         ]

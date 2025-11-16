@@ -1,13 +1,14 @@
 // Conversation store using Zustand
 
 import { create } from 'zustand';
-import type { Conversation, Message, AIModel } from '@/types';
+import type { Conversation, Message, AIModel, GroupedModels } from '@/types';
 
 interface ConversationState {
   conversations: Conversation[];
   currentConversation: Conversation | null;
   messages: Message[];
   models: AIModel[];
+  groupedModels: GroupedModels | null;
   isLoading: boolean;
   error: string | null;
 
@@ -16,6 +17,7 @@ interface ConversationState {
   setCurrentConversation: (conversation: Conversation | null) => void;
   setMessages: (messages: Message[]) => void;
   setModels: (models: AIModel[]) => void;
+  setGroupedModels: (groupedModels: GroupedModels) => void;
   setIsLoading: (isLoading: boolean) => void;
   setError: (error: string | null) => void;
   addMessage: (message: Message) => void;
@@ -31,6 +33,7 @@ export const useConversationStore = create<ConversationState>((set) => ({
   currentConversation: null,
   messages: [],
   models: [],
+  groupedModels: null,
   isLoading: false,
   error: null,
 
@@ -41,6 +44,8 @@ export const useConversationStore = create<ConversationState>((set) => ({
   setMessages: (messages) => set({ messages }),
 
   setModels: (models) => set({ models }),
+
+  setGroupedModels: (groupedModels) => set({ groupedModels, models: groupedModels.flat }),
 
   setIsLoading: (isLoading) => set({ isLoading }),
 
@@ -89,6 +94,7 @@ export const useConversationStore = create<ConversationState>((set) => ({
       currentConversation: null,
       messages: [],
       models: [],
+      groupedModels: null,
       isLoading: false,
       error: null,
     }),

@@ -12,20 +12,20 @@ import { useAuthStore } from '@/store/authStore';
 
 const ChatLayout: React.FC = () => {
   const { isLoading } = useAuthStore();
-  const { setConversations, setModels, setCurrentConversation } = useConversationStore();
+  const { setConversations, setGroupedModels, setCurrentConversation } = useConversationStore();
   const [isInitializing, setIsInitializing] = React.useState(true);
 
   React.useEffect(() => {
     const initialize = async () => {
       try {
         // Load conversations and models in parallel
-        const [conversations, models] = await Promise.all([
+        const [conversations, groupedModels] = await Promise.all([
           conversationsApi.getAll(),
           modelsApi.getAll(),
         ]);
 
         setConversations(conversations);
-        setModels(models);
+        setGroupedModels(groupedModels);
 
         // Set the first conversation as current if exists
         if (conversations.length > 0) {

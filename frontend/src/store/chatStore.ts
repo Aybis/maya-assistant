@@ -24,7 +24,7 @@ export const useChatStore = create<ChatState>((set) => ({
   isStreaming: false,
   streamingContent: '',
   inputValue: '',
-  selectedModel: 'gpt-3.5-turbo',
+  selectedModel: 'gpt-5',
   sidebarOpen: true,
 
   setIsStreaming: (isStreaming) => set({ isStreaming }),

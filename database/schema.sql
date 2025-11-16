@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS conversations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
   title TEXT DEFAULT 'New Chat',
-  model VARCHAR(50) DEFAULT 'gpt-3.5-turbo',
+  model VARCHAR(50) DEFAULT 'gpt-5',
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );

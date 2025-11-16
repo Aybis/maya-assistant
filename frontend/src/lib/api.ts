@@ -7,7 +7,8 @@ import type {
   ConversationUpdate,
   Message,
   MessageCreate,
-  AIModel
+  AIModel,
+  GroupedModels
 } from '@/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -125,7 +126,7 @@ export const messagesApi = {
 
 // Models API
 export const modelsApi = {
-  getAll: async (): Promise<AIModel[]> => {
+  getAll: async (): Promise<GroupedModels> => {
     const { data } = await api.get('/api/models');
     return data;
   },

@@ -9,7 +9,7 @@ from uuid import UUID
 class ConversationBase(BaseModel):
     """Base conversation model"""
     title: Optional[str] = Field(default="New Chat", max_length=200)
-    model: Optional[str] = Field(default="gpt-3.5-turbo", max_length=50)
+    model: Optional[str] = Field(default="gpt-5", max_length=50)
 
 
 class ConversationCreate(ConversationBase):

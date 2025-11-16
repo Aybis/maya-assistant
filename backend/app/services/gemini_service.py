@@ -94,16 +94,55 @@ class GeminiService:
     def get_available_models() -> List[dict]:
         """Return list of available Gemini models"""
         return [
+            # Gemini 2.5 Models
+            {
+                "id": "gemini-2.5-flash",
+                "name": "Flash 2.5",
+                "provider": "google",
+                "brand": "Gemini",
+                "category": "Gemini 2.5",
+                "description": "Lightning-fast Gemini 2.5"
+            },
+            {
+                "id": "gemini-2.5-pro",
+                "name": "Pro 2.5",
+                "provider": "google",
+                "brand": "Gemini",
+                "category": "Gemini 2.5",
+                "description": "Most capable Gemini 2.5"
+            },
+            # Gemini 1.5 Models
+            {
+                "id": "gemini-1.5-flash",
+                "name": "Flash 1.5",
+                "provider": "google",
+                "brand": "Gemini",
+                "category": "Gemini 1.5",
+                "description": "Fast and efficient"
+            },
+            {
+                "id": "gemini-1.5-pro",
+                "name": "Pro 1.5",
+                "provider": "google",
+                "brand": "Gemini",
+                "category": "Gemini 1.5",
+                "description": "Advanced reasoning"
+            },
+            # Gemini 1.0 Models
             {
                 "id": "gemini-pro",
-                "name": "Gemini Pro",
+                "name": "Pro",
                 "provider": "google",
-                "description": "Google's most capable model"
+                "brand": "Gemini",
+                "category": "Gemini 1.0",
+                "description": "Balanced performance"
             },
             {
                 "id": "gemini-pro-vision",
-                "name": "Gemini Pro Vision",
+                "name": "Pro Vision",
                 "provider": "google",
-                "description": "Multimodal model with vision"
+                "brand": "Gemini",
+                "category": "Gemini 1.0",
+                "description": "Multimodal with vision"
             }
         ]

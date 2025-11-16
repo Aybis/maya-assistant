@@ -30,7 +30,18 @@ export interface AIModel {
   id: string;
   name: string;
   provider: 'openai' | 'anthropic' | 'google';
+  brand: string;
+  category: string;
   description: string;
+}
+
+export interface GroupedModels {
+  grouped: {
+    [brand: string]: {
+      [category: string]: AIModel[];
+    };
+  };
+  flat: AIModel[];
 }
 
 export interface ConversationCreate {
