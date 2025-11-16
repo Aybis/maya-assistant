@@ -1,9 +1,6 @@
 """Tests for conversations API endpoints"""
 
 import pytest
-from unittest.mock import AsyncMock
-
-
 @pytest.mark.asyncio
 async def test_get_conversations(authenticated_client, mock_supabase_service, sample_conversation):
     """Test getting all conversations for authenticated user"""
