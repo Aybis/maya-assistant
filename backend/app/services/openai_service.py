@@ -35,13 +35,34 @@ class OpenAIService:
             Content chunks from the model
         """
         try:
-            stream = await self.client.chat.completions.create(
-                model=model,
-                messages=messages,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                stream=True
-            )
+            # Newer models (GPT-4, GPT-4o, GPT-5, etc.) use max_completion_tokens
+            # Older models (GPT-3.5) use max_tokens
+            uses_max_completion_tokens = any([
+                model.startswith('gpt-4'),
+                model.startswith('gpt-5'),
+                'o1' in model,
+            ])
+
+            # GPT-5 and O1 models only support default temperature (1)
+            is_gpt5_or_o1 = model.startswith('gpt-5') or 'o1' in model
+
+            params = {
+                "model": model,
+                "messages": messages,
+                "stream": True
+            }
+
+            # Only add temperature for models that support it
+            if not is_gpt5_or_o1:
+                params["temperature"] = temperature
+
+            # Use the appropriate max tokens parameter based on the model
+            if uses_max_completion_tokens:
+                params["max_completion_tokens"] = max_tokens
+            else:
+                params["max_tokens"] = max_tokens
+
+            stream = await self.client.chat.completions.create(**params)
 
             async for chunk in stream:
                 if chunk.choices[0].delta.content:

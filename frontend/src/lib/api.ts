@@ -132,6 +132,47 @@ export const modelsApi = {
   },
 };
 
+// Memory API
+export const memoryApi = {
+  getStats: async (): Promise<{
+    memories: {
+      total: number;
+      by_type: {
+        preference: number;
+        fact: number;
+        goal: number;
+        context: number;
+        interest: number;
+      };
+    };
+    summaries: { total: number };
+    conversations: { total: number };
+  }> => {
+    const { data } = await api.get('/api/memory-utils/stats');
+    return data;
+  },
+
+  processAllConversations: async (limit: number = 20): Promise<{
+    conversations: number;
+    memories_extracted: number;
+    summaries_created: number;
+    errors: any[];
+  }> => {
+    const { data } = await api.post(`/api/memory-utils/process-all-conversations?limit=${limit}`);
+    return data;
+  },
+
+  getAllMemories: async (): Promise<any[]> => {
+    const { data } = await api.get('/api/memory');
+    return data;
+  },
+
+  getRecentSummaries: async (limit: number = 10): Promise<any[]> => {
+    const { data } = await api.get(`/api/summaries/recent?limit=${limit}`);
+    return data;
+  },
+};
+
 // Health check
 export const healthCheck = async (): Promise<{ status: string }> => {
   const { data } = await api.get('/api/health');

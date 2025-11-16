@@ -21,8 +21,18 @@ class Settings(BaseSettings):
 
     # Supabase
     SUPABASE_URL: str
-    SUPABASE_KEY: str
+    SUPABASE_KEY: Optional[str] = None  # Anon key (for backward compatibility)
+    SUPABASE_ANON_KEY: Optional[str] = None
+    SUPABASE_SERVICE_ROLE_KEY: Optional[str] = None  # Service role key (bypasses RLS)
     SUPABASE_JWT_SECRET: str
+
+    def get_supabase_key(self) -> str:
+        """Get the appropriate Supabase key (prefers service role for backend)"""
+        # Prefer service role key for backend operations (bypasses RLS)
+        if self.SUPABASE_SERVICE_ROLE_KEY:
+            return self.SUPABASE_SERVICE_ROLE_KEY
+        # Fall back to SUPABASE_KEY or SUPABASE_ANON_KEY
+        return self.SUPABASE_KEY or self.SUPABASE_ANON_KEY or ""
 
     # OpenAI
     OPENAI_API_KEY: Optional[str] = None
