@@ -24,7 +24,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
   const ref = React.useRef<HTMLDivElement>(null);
 
   // Find selected model from flat list
-  const selected = groupedModels?.flat.find((m) => m.id === selectedModel);
+  const selected = groupedModels?.flat?.find((m) => m.id === selectedModel);
 
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -37,7 +37,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  if (!groupedModels) {
+  if (!groupedModels || !groupedModels.grouped || !groupedModels.flat) {
     return (
       <div className="flex items-center justify-between gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm w-full min-w-[200px]">
         <span className="text-muted-foreground">Loading models...</span>
@@ -47,7 +47,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
 
   // Define brand order
   const brandOrder = ['GPT', 'Claude', 'Gemini'];
-  const sortedBrands = Object.keys(groupedModels.grouped).sort((a, b) => {
+  const sortedBrands = Object.keys(groupedModels.grouped || {}).sort((a, b) => {
     const indexA = brandOrder.indexOf(a);
     const indexB = brandOrder.indexOf(b);
     if (indexA === -1 && indexB === -1) return a.localeCompare(b);
@@ -61,7 +61,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
       <button
         className={cn(
           'flex items-center justify-between gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm w-full min-w-[250px]',
-          disabled && 'opacity-50 cursor-not-allowed'
+          disabled && 'opacity-50 cursor-not-allowed',
         )}
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
@@ -91,41 +91,45 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
               </div>
 
               {/* Categories */}
-              {Object.entries(groupedModels.grouped[brand]).map(([category, models]) => (
-                <div key={category} className="px-2 py-1">
-                  {/* Category Header */}
-                  <div className="px-2 py-1">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                      {category}
-                    </p>
-                  </div>
+              {Object.entries(groupedModels.grouped[brand] || {}).map(
+                ([category, models]) => (
+                  <div key={category} className="px-2 py-1">
+                    {/* Category Header */}
+                    <div className="px-2 py-1">
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                        {category}
+                      </p>
+                    </div>
 
-                  {/* Models */}
-                  {(models as AIModel[]).map((model) => (
-                    <button
-                      key={model.id}
-                      className="flex w-full items-center gap-2 rounded-sm px-3 py-2 text-sm hover:bg-accent transition-colors"
-                      onClick={() => {
-                        onSelectModel(model.id);
-                        setIsOpen(false);
-                      }}
-                    >
-                      <Check
-                        className={cn(
-                          'h-4 w-4 shrink-0',
-                          selectedModel === model.id ? 'opacity-100 text-primary' : 'opacity-0'
-                        )}
-                      />
-                      <div className="flex-1 text-left min-w-0">
-                        <p className="font-medium truncate">{model.name}</p>
-                        <p className="text-xs text-muted-foreground truncate">
-                          {model.description}
-                        </p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              ))}
+                    {/* Models */}
+                    {(models as AIModel[]).map((model) => (
+                      <button
+                        key={model.id}
+                        className="flex w-full items-center gap-2 rounded-sm px-3 py-2 text-sm hover:bg-accent transition-colors"
+                        onClick={() => {
+                          onSelectModel(model.id);
+                          setIsOpen(false);
+                        }}
+                      >
+                        <Check
+                          className={cn(
+                            'h-4 w-4 shrink-0',
+                            selectedModel === model.id
+                              ? 'opacity-100 text-primary'
+                              : 'opacity-0',
+                          )}
+                        />
+                        <div className="flex-1 text-left min-w-0">
+                          <p className="font-medium truncate">{model.name}</p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {model.description}
+                          </p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                ),
+              )}
             </div>
           ))}
         </div>

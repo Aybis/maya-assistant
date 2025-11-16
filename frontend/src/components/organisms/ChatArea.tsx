@@ -15,12 +15,15 @@ import type { Message } from '@/types';
 const ChatArea: React.FC = () => {
   const {
     currentConversation,
-    messages,
+    messages: rawMessages,
     groupedModels,
     setMessages,
     addMessage,
     updateConversation,
   } = useConversationStore();
+
+  // Ensure messages is always an array
+  const messages = Array.isArray(rawMessages) ? rawMessages : [];
 
   const {
     isStreaming,
@@ -38,6 +41,21 @@ const ChatArea: React.FC = () => {
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const [isLoadingMessages, setIsLoadingMessages] = React.useState(false);
 
+  // Handle model selection and save to conversation
+  const handleModelChange = async (modelId: string) => {
+    setSelectedModel(modelId);
+
+    // Save the model selection to the conversation
+    if (currentConversation) {
+      try {
+        await conversationsApi.update(currentConversation.id, { model: modelId });
+        updateConversation(currentConversation.id, { model: modelId });
+      } catch (error) {
+        console.error('Failed to update conversation model:', error);
+      }
+    }
+  };
+
   // Load messages when conversation changes
   React.useEffect(() => {
     const loadMessages = async () => {
@@ -51,10 +69,17 @@ const ChatArea: React.FC = () => {
         const conversationMessages = await messagesApi.getAll(
           currentConversation.id
         );
-        setMessages(conversationMessages);
+        // Ensure we have a valid array
+        if (Array.isArray(conversationMessages)) {
+          setMessages(conversationMessages);
+        } else {
+          console.error('Invalid messages data:', conversationMessages);
+          setMessages([]);
+        }
         setSelectedModel(currentConversation.model);
       } catch (error) {
         console.error('Failed to load messages:', error);
+        setMessages([]);
       } finally {
         setIsLoadingMessages(false);
       }
@@ -98,12 +123,14 @@ const ChatArea: React.FC = () => {
         () => {
           // On done, reload messages from server
           messagesApi.getAll(currentConversation.id).then((msgs) => {
-            setMessages(msgs);
+            // Ensure we have a valid array
+            const validMessages = Array.isArray(msgs) ? msgs : [];
+            setMessages(validMessages);
             setIsStreaming(false);
             resetChat();
 
             // Update conversation title if it's the first message
-            if (msgs.length === 2) {
+            if (validMessages.length === 2) {
               const title = userMessage.slice(0, 50);
               conversationsApi
                 .update(currentConversation.id, { title })
@@ -111,6 +138,10 @@ const ChatArea: React.FC = () => {
                   updateConversation(currentConversation.id, updated);
                 });
             }
+          }).catch((error) => {
+            console.error('Failed to reload messages:', error);
+            setIsStreaming(false);
+            resetChat();
           });
         },
         (error) => {
@@ -147,7 +178,7 @@ const ChatArea: React.FC = () => {
         <ModelSelector
           groupedModels={groupedModels}
           selectedModel={selectedModel}
-          onSelectModel={setSelectedModel}
+          onSelectModel={handleModelChange}
           disabled={isStreaming}
         />
       </div>
@@ -164,18 +195,33 @@ const ChatArea: React.FC = () => {
               <MessageBubble key={message.id} message={message} />
             ))}
 
-            {/* Streaming message */}
-            {isStreaming && streamingContent && (
-              <MessageBubble
-                message={{
-                  id: 'streaming',
-                  conversation_id: currentConversation.id,
-                  role: 'assistant',
-                  content: streamingContent,
-                  created_at: new Date().toISOString(),
-                }}
-                isStreaming={true}
-              />
+            {/* Streaming message or loading indicator */}
+            {isStreaming && (
+              streamingContent ? (
+                <MessageBubble
+                  message={{
+                    id: 'streaming',
+                    conversation_id: currentConversation.id,
+                    role: 'assistant',
+                    content: streamingContent,
+                    created_at: new Date().toISOString(),
+                  }}
+                  isStreaming={true}
+                />
+              ) : (
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                    <div className="w-4 h-4 text-primary">AI</div>
+                  </div>
+                  <div className="flex-1 bg-muted rounded-lg p-4">
+                    <div className="flex gap-1">
+                      <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                      <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                      <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                    </div>
+                  </div>
+                </div>
+              )
             )}
 
             <div ref={messagesEndRef} />

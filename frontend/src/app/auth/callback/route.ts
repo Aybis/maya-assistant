@@ -8,6 +8,15 @@ import type { NextRequest } from 'next/server';
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
+  const error = requestUrl.searchParams.get('error');
+  const errorDescription = requestUrl.searchParams.get('error_description');
+
+  // Handle OAuth errors
+  if (error) {
+    console.error('OAuth error:', error, errorDescription);
+    // Redirect to login with error message
+    return NextResponse.redirect(new URL(`/login?error=${encodeURIComponent(errorDescription || error)}`, request.url));
+  }
 
   if (code) {
     const cookieStore = await cookies();
@@ -33,7 +42,13 @@ export async function GET(request: NextRequest) {
         },
       }
     );
-    await supabase.auth.exchangeCodeForSession(code);
+
+    try {
+      await supabase.auth.exchangeCodeForSession(code);
+    } catch (err) {
+      console.error('Failed to exchange code for session:', err);
+      return NextResponse.redirect(new URL('/login?error=Authentication failed', request.url));
+    }
   }
 
   // URL to redirect to after sign in process completes

@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
 from typing import List
 from ..models.message import MessageCreate, MessageResponse
+from ..models.conversation import ConversationUpdate
 from ..dependencies import get_current_user, get_supabase_service
 from ..services.supabase_service import SupabaseService
 from ..services.ai_service import AIService
@@ -74,14 +75,26 @@ async def send_message(
         model=None
     )
 
-    # Get conversation history
-    messages = await db.get_messages(conversation_id=conversation_id)
+    # Get conversation history (last 50 messages to ensure we have enough context)
+    messages = await db.get_messages(conversation_id=conversation_id, limit=50)
 
-    # Format messages for AI
+    # Add system message for context awareness
     ai_messages = [
+        {
+            "role": "system",
+            "content": "You are a helpful AI assistant. Remember and use information from the conversation history to provide contextual responses. If the user mentions their name or personal details, remember and use them in future responses."
+        }
+    ]
+
+    # Format conversation history for AI
+    ai_messages.extend([
         {"role": msg["role"], "content": msg["content"]}
         for msg in messages
-    ]
+    ])
+
+    # Log the conversation context for debugging
+    print(f"Sending {len(ai_messages)} messages to AI (including system message)")
+    print(f"Conversation ID: {conversation_id}")
 
     # Determine model to use
     model = message.model or conversation.get("model", "gpt-3.5-turbo")
@@ -109,6 +122,35 @@ async def send_message(
             content=complete_response,
             model=model
         )
+
+        # Auto-generate title after first exchange (when there are exactly 2 messages)
+        all_messages = await db.get_messages(conversation_id=conversation_id)
+        if len(all_messages) == 2 and conversation.get("title") == "New Chat":
+            # Generate a concise title from the user's first message
+            user_message = all_messages[0]["content"]
+            title_prompt = [
+                {"role": "system", "content": "Generate a concise 3-5 word title for this conversation. Only respond with the title, no punctuation."},
+                {"role": "user", "content": f"First message: {user_message[:200]}"}
+            ]
+
+            # Use the current model to generate title
+            title_chunks = []
+            async for chunk in ai_service.chat_completion_stream(
+                messages=title_prompt,
+                model=model,
+                temperature=0.7,
+                max_tokens=50
+            ):
+                title_chunks.append(chunk)
+
+            generated_title = "".join(title_chunks).strip()[:60]  # Limit to 60 chars
+
+            # Update conversation title
+            await db.update_conversation(
+                conversation_id=conversation_id,
+                user_id=current_user["user_id"],
+                update=ConversationUpdate(title=generated_title)
+            )
 
     # Return streaming response
     return StreamingResponse(

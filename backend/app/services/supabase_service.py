@@ -13,10 +13,14 @@ class SupabaseService:
     """Service for interacting with Supabase database"""
 
     def __init__(self):
-        """Initialize Supabase client"""
+        """Initialize Supabase client with service role key (bypasses RLS)"""
+        supabase_key = settings.get_supabase_key()
+        if not supabase_key:
+            raise ValueError("No Supabase key configured. Please set SUPABASE_SERVICE_ROLE_KEY or SUPABASE_KEY in .env")
+
         self.client: Client = create_client(
             settings.SUPABASE_URL,
-            settings.SUPABASE_KEY
+            supabase_key
         )
 
     # Conversation methods
@@ -34,8 +38,13 @@ class SupabaseService:
             "updated_at": datetime.utcnow().isoformat()
         }
 
-        response = self.client.table("conversations").insert(data).execute()
-        return response.data[0] if response.data else None
+        try:
+            response = self.client.table("conversations").insert(data).execute()
+            return response.data[0] if response.data else None
+        except Exception as e:
+            print(f"Error creating conversation: {e}")
+            print(f"Data: {data}")
+            raise
 
     async def get_conversations(
         self,

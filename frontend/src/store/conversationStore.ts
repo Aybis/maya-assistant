@@ -45,7 +45,7 @@ export const useConversationStore = create<ConversationState>((set) => ({
 
   setModels: (models) => set({ models }),
 
-  setGroupedModels: (groupedModels) => set({ groupedModels, models: groupedModels.flat }),
+  setGroupedModels: (groupedModels) => set({ groupedModels, models: groupedModels?.flat || [] }),
 
   setIsLoading: (isLoading) => set({ isLoading }),
 

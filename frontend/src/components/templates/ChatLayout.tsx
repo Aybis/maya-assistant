@@ -24,15 +24,27 @@ const ChatLayout: React.FC = () => {
           modelsApi.getAll(),
         ]);
 
-        setConversations(conversations);
-        setGroupedModels(groupedModels);
+        // Ensure we have valid data before setting
+        if (Array.isArray(conversations)) {
+          setConversations(conversations);
+          // Set the first conversation as current if exists
+          if (conversations.length > 0) {
+            setCurrentConversation(conversations[0]);
+          }
+        } else {
+          console.error('Invalid conversations data:', conversations);
+          setConversations([]);
+        }
 
-        // Set the first conversation as current if exists
-        if (conversations.length > 0) {
-          setCurrentConversation(conversations[0]);
+        if (groupedModels && groupedModels.grouped && groupedModels.flat) {
+          setGroupedModels(groupedModels);
+        } else {
+          console.error('Invalid grouped models data:', groupedModels);
         }
       } catch (error) {
         console.error('Failed to initialize:', error);
+        // Set safe defaults on error
+        setConversations([]);
       } finally {
         setIsInitializing(false);
       }
@@ -41,7 +53,7 @@ const ChatLayout: React.FC = () => {
     if (!isLoading) {
       initialize();
     }
-  }, [isLoading]);
+  }, [isLoading, setConversations, setGroupedModels, setCurrentConversation]);
 
   if (isLoading || isInitializing) {
     return (

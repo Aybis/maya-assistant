@@ -3,9 +3,11 @@
 'use client';
 
 import * as React from 'react';
-import { Plus, LogOut, Menu } from 'lucide-react';
+import { Plus, LogOut, Menu, User } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import Button from '../atoms/Button';
 import ConversationItem from '../molecules/ConversationItem';
+import { ThemeToggle } from '../molecules/ThemeToggle';
 import { useConversationStore } from '@/store/conversationStore';
 import { useChatStore } from '@/store/chatStore';
 import { useAuthStore } from '@/store/authStore';
@@ -14,27 +16,38 @@ import { createClient } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
 
 const Sidebar: React.FC = () => {
-  const { conversations, currentConversation, setCurrentConversation, deleteConversation, addConversation } =
-    useConversationStore();
+  const {
+    conversations: rawConversations,
+    currentConversation,
+    setCurrentConversation,
+    deleteConversation,
+    addConversation,
+  } = useConversationStore();
   const { sidebarOpen, setSidebarOpen } = useChatStore();
   const { user } = useAuthStore();
   const supabase = createClient();
+  const router = useRouter();
+
+  // Ensure conversations is always an array
+  const conversations = Array.isArray(rawConversations) ? rawConversations : [];
 
   const handleNewChat = async () => {
     try {
       const newConversation = await conversationsApi.create({
         title: 'New Chat',
+        model: 'gpt-4o', // Default model
       });
       addConversation(newConversation);
       setCurrentConversation(newConversation);
     } catch (error) {
       console.error('Failed to create conversation:', error);
+      alert('Failed to create new chat. Please try again.');
     }
   };
 
   const handleDeleteConversation = async (
     e: React.MouseEvent,
-    conversationId: string
+    conversationId: string,
   ) => {
     e.stopPropagation();
     try {
@@ -48,6 +61,8 @@ const Sidebar: React.FC = () => {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
   };
+
+  console.log('Rendering conversations:', typeof conversations);
 
   if (!sidebarOpen) {
     return (
@@ -87,22 +102,39 @@ const Sidebar: React.FC = () => {
 
       {/* Conversations List */}
       <div className="flex-1 overflow-y-auto px-3 space-y-1">
-        {conversations.map((conversation) => (
-          <ConversationItem
-            key={conversation.id}
-            conversation={conversation}
-            isActive={currentConversation?.id === conversation.id}
-            onClick={() => setCurrentConversation(conversation)}
-            onDelete={(e) => handleDeleteConversation(e, conversation.id)}
-          />
-        ))}
+        {conversations.length > 0 &&
+          conversations.map((conversation) => (
+            <ConversationItem
+              key={conversation.id}
+              conversation={conversation}
+              isActive={currentConversation?.id === conversation.id}
+              onClick={() => setCurrentConversation(conversation)}
+              onDelete={(e) => handleDeleteConversation(e, conversation.id)}
+            />
+          ))}
       </div>
 
       {/* User Section */}
-      <div className="p-4 border-t">
-        <div className="flex items-center justify-between">
+      <div className="p-4 border-t space-y-3">
+        {/* User Info */}
+        <div className="flex items-center gap-2">
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium truncate">{user?.email}</p>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex gap-1">
+            <ThemeToggle />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => router.push('/profile')}
+              title="Profile"
+            >
+              <User className="h-5 w-5" />
+            </Button>
           </div>
           <Button
             variant="ghost"
@@ -110,7 +142,7 @@ const Sidebar: React.FC = () => {
             onClick={handleSignOut}
             title="Sign out"
           >
-            <LogOut className="h-4 w-4" />
+            <LogOut className="h-5 w-5" />
           </Button>
         </div>
       </div>
